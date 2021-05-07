@@ -112,7 +112,7 @@ class base32 {
     if (base32.isEmpty) {
       return Uint8List(0);
     }
-    if (!_isValid(base32)) {
+    if (!isValid(base32)) {
       throw FormatException('Invalid Base32 characters');
       //return Uint8List(8);
     }
@@ -178,7 +178,7 @@ class base32 {
     return Uint8List.fromList(bytes);
   }
 
-  static bool _isValid(String b32str) {
+  static bool isValid(String b32str) {
     if (b32str.length % 2 != 0 || !_base32Regex.hasMatch(b32str)) {
       return false;
     }

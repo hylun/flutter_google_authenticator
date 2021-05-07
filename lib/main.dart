@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:confirm_dialog/confirm_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'totp.dart';
+import 'base32.dart';
 
 void main() {
   runApp(MyApp());
@@ -33,7 +35,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   int leftTime = 30;
   var _names = <String>[];
   var _codes = <String>[];
@@ -82,6 +83,10 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             }
             return GestureDetector(
+                onTap: () {
+                  Clipboard.setData(
+                      ClipboardData(text: TOTP(_codes[index]).now()));
+                },
                 onLongPress: () async {
                   _delCode(_names[index]);
                 },
@@ -157,6 +162,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter auth code';
                           }
+                          if (!base32.isValid(value)) {
+                            return 'The code you entered cannot be parsed';
+                          }
                           code = value;
                           return null;
                         },
@@ -202,7 +210,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _delCode(String key) async {
     if (await confirm(context,
-        title: Text('Do you want to delete this information?'))) {
+        title: Text('Do you want to delete this auth code?'))) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.remove(key);
       _retrieveData();
